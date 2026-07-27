@@ -2,21 +2,20 @@
 
 This document outlines the architectural guidelines, layout, and constraints for the project. 
 
-The codebase implements **Domain-Driven Design (DDD)** using **Hexagonal Architecture (Ports & Adapters)**, structured into **Vertical Slices (Bounded Contexts)**, and communicating asynchronously through **Events**.
+The codebase implements **Domain-Driven Design (DDD)** using **Hexagonal Architecture (Ports & Adapters)**, structured into **Vertical Slices (Bounded Contexts)**.
 
 ---
 
-## 1. Core Architectural Patterns
+## 1. Core Architectural Layers
 
 ```mermaid
 graph TD
     subgraph Infrastructure Layer (Adapters)
         Controllers[HTTP Controllers]
-        Listeners[Event Listeners]
         RepositoriesImpl[Repository Implementations]
     end
 
-    subgraph Application Layer (Use Cases / Handlers)
+    subgraph Application Layer (Use Cases)
         UseCases[Use Cases]
     end
 
@@ -24,116 +23,80 @@ graph TD
         Entities[Entities & Aggregate Roots]
         VO[Value Objects]
         Ports[Repository & Service Ports]
-        Events[Domain Events]
+        Services[Domain Services]
     end
 
     Controllers --> UseCases
-    Listeners --> UseCases
     UseCases --> Entities
     UseCases --> Ports
+    UseCases --> Services
     RepositoriesImpl -.->|Implements| Ports
-    UseCases -.->|Publishes via| Ports
 ```
 
-### Hexagonal Architecture (Ports & Adapters)
-- **Domain Layer (Core)**: The heart of the business logic. Contains entities, aggregate roots, value objects, domain events, and ports (interfaces). **It must have zero external library or framework dependencies** (no NestJS, no ORM, no HTTP dependencies).
-- **Application Layer**: Contains use cases (application services) that orchestrate flow. It executes business logic by interacting with domain aggregates and calling outbound ports. It is also framework-independent.
-- **Infrastructure Layer**: Contains concrete implementations of ports (adapters) like database repositories, event emitter bindings, controllers, and NestJS modules. It handles the outside world and wires the system together.
-
-### Vertical Slicing
-Instead of grouping files by technical layer at the root (all controllers, all services, etc.), the system is sliced by business capabilities (Bounded Contexts) inside `src/contexts/`. Each context contains its own Domain, Application, and Infrastructure layers.
-
-### Context Communication via Events
-Bounded Contexts must remain decoupled:
-- **No direct references**: A context must not import another context's use cases or repositories.
-- **Asynchronous Events**: Communication between contexts must happen via events. One context publishes a domain event to the `EventBus` port, and other contexts listen to this event using event listeners in their infrastructure layer.
+### Layer Definitions:
+- **Domain Layer (Core)**: Pure business logic with **zero external dependencies**. Contains aggregate roots, entities, value objects, domain services, and repository port interfaces.
+- **Application Layer**: Orchestrates execution flow. Contains use cases that call domain entities and repositories via ports. Framework-independent.
+- **Infrastructure Layer**: Concrete implementations of ports (adapters) like database repositories, controllers, and NestJS modules.
 
 ---
 
-## 2. Directory & File Structure
+## 2. Organization Context Structure
 
-Each bounded context under `src/contexts/<context-name>/` is structured as follows:
+The `organization` context is a vertical slice (`src/contexts/organization/`) containing 3 aggregate roots:
+
+### A. Employee Aggregate Root
+- **Description**: Represents the identity, IT role, capabilities, and location of an employee.
+- **Value Objects**:
+  - `PersonalInformation`: Groups `firstName`, `lastName`, optional `Email`, and `Phone` array.
+  - `Email`: Validates corporate format (requires domain extension like `@company.com` or `@corporate.com`).
+  - `Phone`: Validates phone format.
+- **Domain Invariants**:
+  - Un empleado no puede crearse sin un email corporativo válido.
+  - Un empleado activo debe estar asignado obligatoriamente a una gerencia (`managementId`), a menos que tenga el rol técnico de `CEO` o `CIO`.
+
+### B. Management (Gerencia) Aggregate Root
+- **Description**: Defines hierarchy, cost centers, and approval ownership.
+- **Value Objects**:
+  - `ManagementName`: Minimum 3 characters.
+  - `CostCenter`: Validates financial center code format.
+- **Domain Invariants**:
+  - Evitar ciclos jerárquicos: Una gerencia no puede reportar a sí misma ni a una gerencia que sea descendiente suya.
+
+### C. OrganizationUnit Aggregate Root
+- **Description**: Represents physical locations (offices, branches) and legal entities.
+- **Value Objects**:
+  - `GeographicLocation`: Coordinates physical location (`country`, `city`, `address`).
+  - `TimeZone`: Runtime-validated timezone string (using `Intl`).
+- **Domain Invariants**:
+  - Una sede física (`Office`) debe tener asociada una zona horaria válida.
+  - Evitar ciclos jerárquicos.
+
+---
+
+## 3. Directory Layout
+
+The directory structure is organized as follows:
 
 ```
-src/contexts/<context-name>/
-├── <context-name>.module.ts       # NestJS module wiring the context dependencies
-├── domain/                         # Domain Layer (Pure TypeScript)
-│   ├── models/                    # Aggregate roots, Entities, Value Objects
-│   │   └── <entity>.ts
-│   ├── events/                    # Domain Events specific to this context
-│   │   └── <name>.event.ts
-│   └── ports/                     # Outbound Port Interfaces (e.g. Repository interfaces)
-│       └── <entity>-repository.interface.ts
-├── application/                    # Application Layer (Pure TypeScript)
-│   └── use-cases/                 # Coordinate business operations
-│       └── <use-case>.use-case.ts
-└── infrastructure/                 # Infrastructure Layer (NestJS / Framework)
-    ├── adapters/                  # Outbound Adapters (DB repositories, third-party clients)
-    │   └── in-memory-<entity>.repository.ts
-    ├── controllers/               # Inbound HTTP Adapters (REST controllers)
-    │   └── <entity>.controller.ts
-    └── listeners/                 # Inbound Event Adapters (listening to other contexts)
-        └── <name>.listener.ts
+src/contexts/organization/
+├── organization.module.ts         # NestJS Module configuring DI
+├── domain/                        # Pure Domain Logic
+│   ├── enums/                     # Domain enums (EmployeeStatus, OrganizationType)
+│   ├── value-objects/             # Immutable Value Objects (Email, GeographicLocation, etc.)
+│   ├── models/                    # Aggregate Roots (Employee, Management, OrganizationUnit, ITRole)
+│   ├── ports/                     # Outbound Port Interfaces (Repository interfaces)
+│   └── services/                  # Domain Services (HierarchyValidatorService)
+├── application/                   # Pure Application Use Cases
+│   └── use-cases/                 # CreateEmployee, CreateManagement, etc.
+└── infrastructure/                # Infrastructure / Adapters
+    ├── adapters/                  # InMemory repositories
+    └── controllers/               # HTTP REST Controllers
 ```
 
 ---
 
-## 3. Detailed File Type Specifications
+## 4. Architectural Constraints & Rules
 
-### Domain Layer Files
-
-#### 1. Aggregate Roots / Entities (`domain/models/`)
-Classes containing business attributes and rules. 
-- *Rule*: Must extend `AggregateRoot` from the shared kernel if they emit domain events.
-- *Rule*: State changes must happen through domain methods (e.g. `assignTo()`), not direct property setters.
-
-#### 2. Domain Events (`domain/events/`)
-Lightweight, immutable data transfer objects capturing a state change that happened in the domain.
-- *Rule*: Must implement `DomainEvent`.
-- *Rule*: Named in the past tense (e.g., `AssetAssignedEvent`).
-
-#### 3. Ports (`domain/ports/`)
-TypeScript interfaces defining outbound operations required by the domain/use-cases (e.g., querying/saving entities).
-- *Rule*: Placed in `ports/` and implemented in the infrastructure layer.
-
-### Application Layer Files
-
-#### 4. Use Cases (`application/use-cases/`)
-Perform use-case orchestration (fetch aggregate, perform action, save aggregate, publish events).
-- *Rule*: Constructor injection of ports only.
-- *Rule*: Completely decoupled from NestJS decorators (`@Injectable`, etc.). Wired in the Module using factories.
-
-### Infrastructure Layer Files
-
-#### 5. Repository Adapters (`infrastructure/adapters/`)
-Implement the repository ports defined in the domain layer using database clients or in-memory tables.
-- *Rule*: Decorated with `@Injectable()` from NestJS.
-
-#### 6. Controllers (`infrastructure/controllers/`)
-Map HTTP endpoints to application use cases.
-- *Rule*: Inject use cases directly and extract HTTP payload/params.
-
-#### 7. Event Listeners (`infrastructure/listeners/`)
-Catch global events dispatched through the event bus and forward them to internal use cases.
-- *Rule*: Use `@OnEvent('<event-name>')` to handle events emitted across contexts.
-
----
-
-## 4. Shared Kernel (`src/shared/`)
-
-Common primitives shared across all bounded contexts:
-- `shared/domain/models/aggregate-root.ts`: Tracks and manages domain events.
-- `shared/domain/models/value-object.ts`: Base class for structural equality.
-- `shared/domain/events/domain-event.interface.ts`: Basic interface for events.
-- `shared/domain/events/event-bus.interface.ts`: The Port for event publishing.
-- `shared/infrastructure/event-bus/nest-event-bus.ts`: Adapter implementing the event bus port using NestJS `@nestjs/event-emitter`.
-
----
-
-## 5. Architectural Violations Checklist
-
-To ensure long-term maintainability, the following are strictly prohibited:
-1. ❌ **Do not import NestJS modules, decorators, or classes in `domain` or `application` folders.** (Exceptions: basic type-safety library interfaces if absolutely needed).
-2. ❌ **Do not import any class from `src/contexts/context-A` into `src/contexts/context-B`** (except event classes for type-safety inside listeners).
-3. ❌ **Do not bypass the Use Case.** Controllers must invoke Use Cases, never domain entities or repositories directly.
-4. ❌ **Do not query another context's database table directly.** Request info or coordinate via Events.
+1. ❌ **No Framework imports in Domain/Application**: No NestJS decorators (`@Injectable()`, etc.) are allowed inside `domain/` and `application/` subfolders. Use NestJS module factories (`useFactory`) to inject dependencies.
+2. ❌ **Aggregate Encapsulation**: Aggregates reference each other **only by ID**, never by reference to the full object (e.g., `Management` holds `managerId: string` and `organizationId: string`).
+3. ❌ **Self-Contained Invariants**: Business logic invariants must be validated inside the constructor or methods of the Aggregate Root or Value Objects.

@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
 import { SharedModule } from './shared/shared.module';
-import { AssetsModule } from './contexts/assets/assets.module';
-import { EmployeesModule } from './contexts/employees/employees.module';
+import { OrganizationModule } from './contexts/organization/organization.module';
 
 @Module({
   imports: [
     SharedModule,
-    AssetsModule,
-    EmployeesModule,
+    OrganizationModule,
   ],
 })
 export class AppModule {}
