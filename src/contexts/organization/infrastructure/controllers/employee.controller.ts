@@ -1,8 +1,11 @@
 import { Controller, Post, Body, Get, Inject } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { CreateEmployeeUseCase } from '../../application/use-cases/create-employee.use-case';
 import type { EmployeeRepository } from '../../domain/ports/employee-repository.interface';
 import { EmployeeStatus } from '../../domain/enums/employee-status.enum';
+import { CreateEmployeeDto } from '../dtos/create-employee.dto';
 
+@ApiTags('Employees')
 @Controller('employees')
 export class EmployeeController {
   constructor(
@@ -12,29 +15,25 @@ export class EmployeeController {
   ) {}
 
   @Post()
-  async create(
-    @Body('id') id: string,
-    @Body('firstName') firstName: string,
-    @Body('lastName') lastName: string,
-    @Body('email') email?: string,
-    @Body('phones') phones?: { type: string; number: string }[],
-    @Body('status') status: EmployeeStatus = EmployeeStatus.Active,
-    @Body('itRoleId') itRoleId: string | null = null,
-    @Body('managementId') managementId: string | null = null,
-    @Body('workingFromId') workingFromId: string | null = null,
-    @Body('skills') skills: string[] = [],
-  ): Promise<any> {
+  @ApiOperation({
+    summary: 'Create a new employee',
+    description:
+      'Creates an employee. Domain invariants are enforced: a valid corporate email is required, ' +
+      'and active employees must have a managementId unless their IT role is CEO or CIO.',
+  })
+  @ApiCreatedResponse({ description: 'Employee created successfully' })
+  async create(@Body() dto: CreateEmployeeDto): Promise<any> {
     const employee = await this.createEmployeeUseCase.execute(
-      id,
-      firstName,
-      lastName,
-      email,
-      phones,
-      status,
-      itRoleId,
-      managementId,
-      workingFromId,
-      skills,
+      dto.id,
+      dto.firstName,
+      dto.lastName,
+      dto.email,
+      dto.phones,
+      dto.status ?? EmployeeStatus.Active,
+      dto.itRoleId ?? null,
+      dto.managementId ?? null,
+      dto.workingFromId ?? null,
+      dto.skills ?? [],
     );
     return {
       id: employee.id,
@@ -50,6 +49,8 @@ export class EmployeeController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'List all employees' })
+  @ApiOkResponse({ description: 'List of employees' })
   async findAll(): Promise<any[]> {
     const employees = await this.employeeRepository.findAll();
     return employees.map((employee) => ({

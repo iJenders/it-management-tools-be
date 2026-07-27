@@ -1,36 +1,37 @@
 import { Controller, Post, Body, Get, Inject } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { CreateOrganizationUnitUseCase } from '../../application/use-cases/create-organization-unit.use-case';
 import type { OrganizationUnitRepository } from '../../domain/ports/organization-unit-repository.interface';
-import { OrganizationType } from '../../domain/enums/organization-type.enum';
+import { CreateOrganizationUnitDto } from '../dtos/create-organization-unit.dto';
 
+@ApiTags('Organization Units')
 @Controller('organization-units')
 export class OrganizationUnitController {
   constructor(
     private readonly createOrgUnitUseCase: CreateOrganizationUnitUseCase,
     @Inject('OrganizationUnitRepository')
     private readonly orgUnitRepository: OrganizationUnitRepository,
-  ) {}
+  ) { }
 
   @Post()
-  async create(
-    @Body('id') id: string,
-    @Body('type') type: OrganizationType,
-    @Body('name') name: string,
-    @Body('country') country: string,
-    @Body('city') city: string,
-    @Body('address') address: string,
-    @Body('timeZone') timeZone?: string,
-    @Body('parentOrganizationId') parentOrganizationId: string | null = null,
-  ): Promise<any> {
+  @ApiOperation({
+    summary: 'Create an organization unit',
+    description:
+      'Creates an organizational unit (LegalEntity, Subsidiary, Office, Branch). ' +
+      'Office type units require a valid IANA timezone. ' +
+      'Circular parent-child relationships are rejected.',
+  })
+  @ApiCreatedResponse({ description: 'Organization unit created successfully' })
+  async create(@Body() dto: CreateOrganizationUnitDto): Promise<any> {
     const unit = await this.createOrgUnitUseCase.execute(
-      id,
-      type,
-      name,
-      country,
-      city,
-      address,
-      timeZone,
-      parentOrganizationId,
+      dto.id,
+      dto.type,
+      dto.name,
+      dto.country,
+      dto.city,
+      dto.address,
+      dto.timeZone,
+      dto.parentOrganizationId ?? null,
     );
     return {
       id: unit.id,
@@ -47,6 +48,8 @@ export class OrganizationUnitController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'List all organization units' })
+  @ApiOkResponse({ description: 'List of organization units' })
   async findAll(): Promise<any[]> {
     const units = await this.orgUnitRepository.findAll();
     return units.map((u) => ({
