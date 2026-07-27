@@ -2,8 +2,8 @@
 
 > A centralized platform for managing IT assets, personnel, and organizational structure in mid-to-large enterprises.
 > #### Other languages:
-> * [English](./docs/README/README_EN.md)
-> * [Español](./docs/README/README_ES.md)
+> * [English](./README_EN.md)
+> * [Español](./README_ES.md)
 
 ---
 
