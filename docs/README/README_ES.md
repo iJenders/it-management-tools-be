@@ -1,9 +1,11 @@
 # IT Management Tools — Backend API
 
 > Plataforma centralizada para la gestión de activos, personas y estructura organizacional de TI en empresas medianas y grandes.
+>
 > #### Otros idiomas:
-> * [English](./README_EN.md)
-> * [Español](./README_ES.md)
+>
+> - [English](./README_EN.md)
+> - [Español](./README_ES.md)
 
 ---
 
@@ -24,13 +26,13 @@ En la mayoría de las organizaciones, el departamento de TI opera **a ciegas**:
 
 Construir el **backend de una plataforma de gestión de TI empresarial** que sirva como fuente de verdad (`Single Source of Truth`) para:
 
-| Dominio | Pregunta de negocio que responde |
-|---|---|
-| **Organización** | ¿Cómo está estructurada la empresa? ¿Quién es el responsable de cada área? |
-| **Personas** | ¿Quiénes son los empleados de TI, cuáles son sus roles y desde dónde trabajan? |
-| **Activos** | ¿Qué equipos, licencias y recursos tecnológicos existen y a quién están asignados? |
-| **Accesos** | *(próximamente)* ¿Qué permisos, credenciales y sistemas puede usar cada persona? |
-| **Soporte** | *(próximamente)* ¿Quién debe atender un ticket según el área, la sede y el horario? |
+| Dominio          | Pregunta de negocio que responde                                                    |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| **Organización** | ¿Cómo está estructurada la empresa? ¿Quién es el responsable de cada área?          |
+| **Personas**     | ¿Quiénes son los empleados de TI, cuáles son sus roles y desde dónde trabajan?      |
+| **Activos**      | ¿Qué equipos, licencias y recursos tecnológicos existen y a quién están asignados?  |
+| **Accesos**      | _(próximamente)_ ¿Qué permisos, credenciales y sistemas puede usar cada persona?    |
+| **Soporte**      | _(próximamente)_ ¿Quién debe atender un ticket según el área, la sede y el horario? |
 
 ---
 
@@ -45,9 +47,20 @@ src/
 │   └── infrastructure/             # NestEventBus adapter, DomainExceptionFilter
 └── contexts/
     ├── organization/               # Contexto activo
-    │   ├── domain/                 # Entidades, VOs, Puertos, Servicios de Dominio
-    │   ├── application/            # Casos de Uso (puro TypeScript, sin framework)
-    │   └── infrastructure/         # Controllers, DTOs, Repositorios InMemory
+    │   ├── domain/                 # Capa de Dominio
+    │   │   ├── enums/              # Enums del dominio
+    │   │   ├── models/             # Entidades y Value Objects
+    │   │   ├── ports/              # Puertos de salida (interfaces)
+    │   │   ├── services/           # Servicios de dominio
+    │   │   └── value-objects/      # Value Objects del dominio
+    │   ├── application/            # Capa de Aplicación
+    │   │   └── use-cases/          # Casos de Uso
+    │   │   ├── commands (WIP)
+    │   │   └── queries (WIP)
+    │   └── infrastructure/         # Capa de Infraestructura
+    │       ├── adapters/           # Repositorios (ej: InMemoryRepository)
+    │       ├── controllers/        # Controllers HTTP (ej: EmployeesController)
+    │       └── dtos/               # DTOs de entrada (ej: CreateEmployeeDto)
     └── assets/                     # Contexto aislado (listo para integrar)
 ```
 
@@ -57,14 +70,14 @@ src/
 
 ## Stack Tecnológico
 
-| Capa | Tecnología |
-|---|---|
-| Runtime | Node.js + TypeScript |
-| Framework HTTP | NestJS |
-| Validación de entrada | `class-validator` + `class-transformer` |
-| Documentación API | Swagger / OpenAPI 3.0 |
-| Bus de eventos | `@nestjs/event-emitter` (reemplazable por RabbitMQ/Kafka) |
-| Persistencia actual | In-Memory (adaptable a TypeORM, Prisma, MongoDB, etc.) |
+| Capa                  | Tecnología                                                |
+| --------------------- | --------------------------------------------------------- |
+| Runtime               | Node.js + TypeScript                                      |
+| Framework HTTP        | NestJS                                                    |
+| Validación de entrada | `class-validator` + `class-transformer`                   |
+| Documentación API     | Swagger / OpenAPI 3.0                                     |
+| Bus de eventos        | `@nestjs/event-emitter` (reemplazable por RabbitMQ/Kafka) |
+| Persistencia actual   | In-Memory (adaptable a TypeORM, Prisma, MongoDB, etc.)    |
 
 ---
 

@@ -7,7 +7,7 @@ import { PersonalInformation } from '../../domain/value-objects/personal-informa
 import { Email } from '../../domain/value-objects/email.vo';
 import { Phone } from '../../domain/value-objects/phone.vo';
 import { EmployeeStatus } from '../../domain/enums/employee-status.enum';
-import { IdGeneratorPort } from 'src/shared/domain/ports/id-generator.port';
+import { IdGeneratorPort } from '../../../../shared/domain/ports/id-generator.port';
 
 export class CreateEmployeeUseCase {
   constructor(

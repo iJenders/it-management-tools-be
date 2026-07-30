@@ -36,100 +36,31 @@ Build the **backend for an enterprise IT management platform** that serves as th
 
 ---
 
-## Business Model
-
-The system is built around three coordinated domains:
-
-### 1. Context: Organization (`/organization`)
-
-Models the **complete company structure** from three angles:
-
-#### Organization Units (`OrganizationUnit`)
-
-Represent the **physical and legal boundaries** of the company:
-
-- `LegalEntity` — Parent company or holding (e.g. _IT Holdings Inc._)
-- `Subsidiary` — Country or regional subsidiary (e.g. _IT Mexico LLC_)
-- `Office` — Physical office or building (e.g. _Madrid HQ_)
-- `Branch` — Operational branch (e.g. _Floor 3, North Tower_)
-
-> Every physical office carries a **validated timezone**. This drives server maintenance windows, HelpDesk support hours, and on-call coordination across geographies.
-
-#### Management Units (`Management`)
-
-Represent the **functional and hierarchical structure** of IT:
-
-- Each unit has an accountable manager (`managerId`).
-- They support deep hierarchies (a Networks team can report to an Infrastructure department).
-- The system **enforces cycle-free hierarchies**: a unit cannot report to itself or to any of its own descendants.
-
-#### Employees (`Employee`)
-
-Represent **IT personnel** with attributes relevant to the platform:
-
-- They carry a configurable **IT role** (`ITRole`): DevOps Engineer, SysAdmin, HelpDesk L1, CIO, etc.
-- They are linked to both a management unit (functional reporting line) and a physical office (`workingFromId`), answering "where does this person actually sit?"
-- They hold a list of **certified skills** (e.g. AWS, Linux, SAP) for intelligent ticket routing.
-
-**Key business invariants enforced by the domain:**
-
-- An active employee **must have** a valid corporate email address.
-- An active employee **must belong** to a management unit, unless their role is `CEO` or `CIO`.
-
-#### IT Roles (`ITRole`)
-
-Available roles are configured by the organization itself, providing flexibility to match any internal structure without changing code.
-
----
-
-### 2. Context: Assets (`/assets`) _(built — pending integration)_
-
-Will manage the inventory of technology assets:
-
-- Hardware (laptops, servers, peripherals)
-- Software licenses
-- Cloud resources (instances, IPs, domains)
-
-When an asset is **assigned to an employee**, the system emits a **domain event** that automatically updates the employee's profile. This guarantees traceability without tightly coupling both contexts.
-
----
-
-### Cross-Context Communication: Domain Events
-
-Contexts **never call each other directly**. They communicate by publishing events through a decoupled event bus:
-
-```
-[Assets Context]
-  Asset.assignTo(employeeId)
-       │
-       └── publishes → AssetAssignedEvent
-                              │
-                              ▼
-                 [Organization Context]
-                   AssetAssignedListener
-                          │
-                          └── HandleAssetAssignedUseCase
-                                  └── Employee.assignAsset(assetId)
-```
-
-This architecture allows the **internal bus** (currently `@nestjs/event-emitter`) to be swapped for an external messaging system like **RabbitMQ**, **Kafka**, or **AWS SNS/SQS** by changing only the adapter at `src/shared/infrastructure/event-bus/` — without touching a single line of business logic.
-
----
-
 ## Technical Architecture
 
 The project implements **DDD (Domain-Driven Design)** with **Hexagonal Architecture (Ports & Adapters)** organized as **Vertical Slices** (one directory per business context).
 
 ```
 src/
-├── shared/                         # Shared kernel: DDD primitives and contracts
+├── shared/                         # Shared Kernel: primitives DDD and contracts
 │   ├── domain/                     # AggregateRoot, ValueObject, EventBus port
 │   └── infrastructure/             # NestEventBus adapter, DomainExceptionFilter
 └── contexts/
     ├── organization/               # Active context
-    │   ├── domain/                 # Entities, Value Objects, Ports, Domain Services
-    │   ├── application/            # Use Cases (pure TypeScript, framework-free)
-    │   └── infrastructure/         # Controllers, DTOs, InMemory Repositories
+    │   ├── domain/                 # Domain Layer
+    │   │   ├── enums/              # Domain Enums
+    │   │   ├── models/             # Entities and Value Objects
+    │   │   ├── ports/              # Output ports (interfaces)
+    │   │   ├── services/           # Domain Services
+    │   │   └── value-objects/      # Value Objects
+    │   ├── application/            # Application Layer
+    │   │   └── use-cases/          # Use Cases
+    │   │   ├── commands (WIP)
+    │   │   └── queries (WIP)
+    │   └── infrastructure/         # Infrastructure Layer
+    │       ├── adapters/           # Repositories (e.g.: InMemoryRepository)
+    │       ├── controllers/        # Controllers HTTP (e.g.: EmployeesController)
+    │       └── dtos/               # Input DTOs (e.g.: CreateEmployeeDto)
     └── assets/                     # Isolated context (ready to integrate)
 ```
 

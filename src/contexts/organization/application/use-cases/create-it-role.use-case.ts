@@ -1,6 +1,6 @@
 import { ITRole } from '../../domain/models/it-role';
 import { ITRoleRepository } from '../../domain/ports/it-role-repository.interface';
-import { IdGeneratorPort } from 'src/shared/domain/ports/id-generator.port';
+import { IdGeneratorPort } from '../../../../shared/domain/ports/id-generator.port';
 
 export class CreateITRoleUseCase {
   constructor(

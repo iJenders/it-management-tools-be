@@ -5,7 +5,7 @@ import { OrganizationName } from '../../domain/value-objects/organization-name.v
 import { GeographicLocation } from '../../domain/value-objects/geographic-location.vo';
 import { TimeZone } from '../../domain/value-objects/timezone.vo';
 import { OrganizationType } from '../../domain/enums/organization-type.enum';
-import { IdGeneratorPort } from 'src/shared/domain/ports/id-generator.port';
+import { IdGeneratorPort } from '../../../../shared/domain/ports/id-generator.port';
 
 export class CreateOrganizationUnitUseCase {
   constructor(

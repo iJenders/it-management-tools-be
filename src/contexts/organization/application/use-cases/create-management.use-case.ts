@@ -2,7 +2,7 @@ import { Management } from '../../domain/models/management';
 import { ManagementRepository } from '../../domain/ports/management-repository.interface';
 import { HierarchyValidatorService } from '../../domain/services/hierarchy-validator.service';
 import { ManagementName } from '../../domain/value-objects/management-name.vo';
-import { IdGeneratorPort } from 'src/shared/domain/ports/id-generator.port';
+import { IdGeneratorPort } from '../../../../shared/domain/ports/id-generator.port';
 
 export class CreateManagementUseCase {
   constructor(

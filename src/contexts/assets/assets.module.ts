@@ -4,7 +4,7 @@ import { InMemoryAssetRepository } from './infrastructure/adapters/in-memory-ass
 import { CreateAssetUseCase } from './application/use-cases/create-asset.use-case';
 import { AssignAssetUseCase } from './application/use-cases/assign-asset.use-case';
 import { AssetController } from './infrastructure/controllers/asset.controller';
-import { EventBus } from 'src/shared/domain/events/event-bus.interface';
+import { EventBus } from '../../shared/domain/events/event-bus.interface';
 
 @Module({
   imports: [SharedModule],
