@@ -1,6 +1,6 @@
 # Architecture Documentation: DDD Hexagonal Architecture with Vertical Slicing
 
-This document outlines the architectural guidelines, layout, and constraints for the project. 
+This document outlines the architectural guidelines, layout, and constraints for the project.
 
 The codebase implements **Domain-Driven Design (DDD)** using **Hexagonal Architecture (Ports & Adapters)**, structured into **Vertical Slices (Bounded Contexts)**.
 
@@ -34,6 +34,7 @@ graph TD
 ```
 
 ### Layer Definitions:
+
 - **Domain Layer (Core)**: Pure business logic with **zero external dependencies**. Contains aggregate roots, entities, value objects, domain services, and repository port interfaces.
 - **Application Layer**: Orchestrates execution flow. Contains use cases that call domain entities and repositories via ports. Framework-independent.
 - **Infrastructure Layer**: Concrete implementations of ports (adapters) like database repositories, controllers, and NestJS modules.
@@ -45,6 +46,7 @@ graph TD
 The `organization` context is a vertical slice (`src/contexts/organization/`) containing 3 aggregate roots:
 
 ### A. Employee Aggregate Root
+
 - **Description**: Represents the identity, IT role, capabilities, and location of an employee.
 - **Value Objects**:
   - `PersonalInformation`: Groups `firstName`, `lastName`, optional `Email`, and `Phone` array.
@@ -55,14 +57,15 @@ The `organization` context is a vertical slice (`src/contexts/organization/`) co
   - Un empleado activo debe estar asignado obligatoriamente a una gerencia (`managementId`), a menos que tenga el rol técnico de `CEO` o `CIO`.
 
 ### B. Management (Gerencia) Aggregate Root
-- **Description**: Defines hierarchy, cost centers, and approval ownership.
+
+- **Description**: Defines hierarchy, and approval ownership.
 - **Value Objects**:
   - `ManagementName`: Minimum 3 characters.
-  - `CostCenter`: Validates financial center code format.
 - **Domain Invariants**:
   - Evitar ciclos jerárquicos: Una gerencia no puede reportar a sí misma ni a una gerencia que sea descendiente suya.
 
 ### C. OrganizationUnit Aggregate Root
+
 - **Description**: Represents physical locations (offices, branches) and legal entities.
 - **Value Objects**:
   - `GeographicLocation`: Coordinates physical location (`country`, `city`, `address`).

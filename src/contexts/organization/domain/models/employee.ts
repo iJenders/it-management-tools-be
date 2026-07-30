@@ -27,7 +27,10 @@ export class Employee extends AggregateRoot {
     this.validateInvariants();
   }
 
-  public assignITRole(itRoleId: string | null, itRoleName: string | null): void {
+  public assignITRole(
+    itRoleId: string | null,
+    itRoleName: string | null,
+  ): void {
     this.itRoleId = itRoleId;
     this.itRoleName = itRoleName;
     this.validateInvariants();
@@ -41,7 +44,9 @@ export class Employee extends AggregateRoot {
   private validateInvariants(): void {
     // Invariant 1: An employee must have a valid corporate email
     if (!this.personalInfo.email) {
-      throw new Error('An employee cannot exist without a valid corporate email');
+      throw new Error(
+        'An employee cannot exist without a valid corporate email',
+      );
     }
 
     // Invariant 2: Active employees must have a Management ID unless they are CEO or CIO

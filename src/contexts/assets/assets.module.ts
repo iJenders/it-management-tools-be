@@ -4,6 +4,7 @@ import { InMemoryAssetRepository } from './infrastructure/adapters/in-memory-ass
 import { CreateAssetUseCase } from './application/use-cases/create-asset.use-case';
 import { AssignAssetUseCase } from './application/use-cases/assign-asset.use-case';
 import { AssetController } from './infrastructure/controllers/asset.controller';
+import { EventBus } from 'src/shared/domain/events/event-bus.interface';
 
 @Module({
   imports: [SharedModule],
@@ -22,7 +23,7 @@ import { AssetController } from './infrastructure/controllers/asset.controller';
     },
     {
       provide: AssignAssetUseCase,
-      useFactory: (assetRepo: InMemoryAssetRepository, eventBus: any) => {
+      useFactory: (assetRepo: InMemoryAssetRepository, eventBus: EventBus) => {
         return new AssignAssetUseCase(assetRepo, eventBus);
       },
       inject: ['AssetRepository', 'EventBus'],

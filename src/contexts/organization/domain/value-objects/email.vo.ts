@@ -16,7 +16,11 @@ export class Email extends ValueObject<{ value: string }> {
       throw new Error(`Email '${email}' has an invalid email format.`);
     }
 
-    const corporateDomains = ['@company.com', '@corporate.com', '@it-tools.com'];
+    const corporateDomains = [
+      '@company.com',
+      '@corporate.com',
+      '@it-tools.com',
+    ];
     const isCorporate = corporateDomains.some((domain) =>
       email.toLowerCase().endsWith(domain),
     );

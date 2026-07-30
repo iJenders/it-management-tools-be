@@ -20,7 +20,10 @@ export class OrganizationUnit extends AggregateRoot {
     this.validateInvariants();
   }
 
-  public changeParent(parentId: string | null, parentAncestors: string[]): void {
+  public changeParent(
+    parentId: string | null,
+    parentAncestors: string[],
+  ): void {
     if (parentId === this.id) {
       throw new Error('An organization unit cannot report to itself');
     }

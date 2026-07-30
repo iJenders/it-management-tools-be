@@ -5,15 +5,16 @@ import { OrganizationName } from '../../domain/value-objects/organization-name.v
 import { GeographicLocation } from '../../domain/value-objects/geographic-location.vo';
 import { TimeZone } from '../../domain/value-objects/timezone.vo';
 import { OrganizationType } from '../../domain/enums/organization-type.enum';
+import { IdGeneratorPort } from 'src/shared/domain/ports/id-generator.port';
 
 export class CreateOrganizationUnitUseCase {
   constructor(
     private readonly orgUnitRepository: OrganizationUnitRepository,
     private readonly hierarchyValidator: HierarchyValidatorService,
+    private readonly idGenerator: IdGeneratorPort,
   ) {}
 
   async execute(
-    id: string,
     type: OrganizationType,
     nameVal: string,
     country: string,
@@ -22,9 +23,18 @@ export class CreateOrganizationUnitUseCase {
     timeZoneVal?: string,
     parentOrganizationId: string | null = null,
   ): Promise<OrganizationUnit> {
+    const id = this.idGenerator.generate();
     const name = new OrganizationName(nameVal);
     const location = new GeographicLocation(country, city, address);
     const timeZone = timeZoneVal ? new TimeZone(timeZoneVal) : null;
+
+    if (parentOrganizationId) {
+      const parent =
+        await this.orgUnitRepository.findById(parentOrganizationId);
+      if (!parent) {
+        throw new Error('The given parent organization unit does not exist.');
+      }
+    }
 
     const parentAncestors = parentOrganizationId
       ? await this.hierarchyValidator.getOrganizationUnitAncestors(
@@ -32,14 +42,7 @@ export class CreateOrganizationUnitUseCase {
         )
       : [];
 
-    const unit = new OrganizationUnit(
-      id,
-      type,
-      name,
-      location,
-      timeZone,
-      null,
-    );
+    const unit = new OrganizationUnit(id, type, name, location, timeZone, null);
 
     unit.changeParent(parentOrganizationId, parentAncestors);
 

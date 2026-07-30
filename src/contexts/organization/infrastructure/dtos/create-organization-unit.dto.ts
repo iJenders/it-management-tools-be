@@ -3,11 +3,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { OrganizationType } from '../../domain/enums/organization-type.enum';
 
 export class CreateOrganizationUnitDto {
-  @ApiProperty({ example: 'org-1', description: 'Unique UUID for the organization unit' })
-  @IsString()
-  @IsNotEmpty()
-  id: string;
-
   @ApiProperty({
     enum: OrganizationType,
     example: OrganizationType.Office,
@@ -16,22 +11,34 @@ export class CreateOrganizationUnitDto {
   @IsEnum(OrganizationType)
   type: OrganizationType;
 
-  @ApiProperty({ example: 'Sede Central Madrid', description: 'Commercial or legal name' })
+  @ApiProperty({
+    example: 'Sede Central Madrid',
+    description: 'Commercial or legal name',
+  })
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ example: 'Spain', description: 'Country of the physical location' })
+  @ApiProperty({
+    example: 'Spain',
+    description: 'Country of the physical location',
+  })
   @IsString()
   @IsNotEmpty()
   country: string;
 
-  @ApiProperty({ example: 'Madrid', description: 'City of the physical location' })
+  @ApiProperty({
+    example: 'Madrid',
+    description: 'City of the physical location',
+  })
   @IsString()
   @IsNotEmpty()
   city: string;
 
-  @ApiProperty({ example: 'Paseo de la Castellana 200', description: 'Full street address' })
+  @ApiProperty({
+    example: 'Paseo de la Castellana 200',
+    description: 'Full street address',
+  })
   @IsString()
   @IsNotEmpty()
   address: string;
@@ -45,8 +52,9 @@ export class CreateOrganizationUnitDto {
   timeZone?: string;
 
   @ApiPropertyOptional({
-    example: 'org-parent',
-    description: 'Parent OrganizationUnit ID for geographic/corporate hierarchy',
+    example: '019fb457-8159-75c9-8994-5821e324f78d',
+    description:
+      'Parent OrganizationUnit ID for geographic/corporate hierarchy',
     nullable: true,
   })
   @IsOptional()

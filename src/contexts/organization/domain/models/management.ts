@@ -1,13 +1,11 @@
 import { AggregateRoot } from '../../../../shared/domain/models/aggregate-root';
 import { ManagementName } from '../value-objects/management-name.vo';
-import { CostCenter } from '../value-objects/cost-center.vo';
 
 export class Management extends AggregateRoot {
   constructor(
     public readonly id: string,
     public name: ManagementName,
-    public managerId: string, // Reference to Employee ID
-    public costCenter: CostCenter,
+    public managerId: string | null = null, // Reference to Employee ID
     public organizationId: string, // Reference to OrganizationUnit ID
     public parentManagementId: string | null = null,
   ) {
@@ -23,10 +21,6 @@ export class Management extends AggregateRoot {
 
   public updateManager(managerId: string): void {
     this.managerId = managerId;
-  }
-
-  public updateCostCenter(costCenter: CostCenter): void {
-    this.costCenter = costCenter;
   }
 
   public assignToOrganization(organizationId: string): void {

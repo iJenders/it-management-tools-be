@@ -4,19 +4,18 @@ import {
   IsOptional,
   IsEnum,
   IsArray,
-  IsUUID,
   ValidateNested,
   IsEmail,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  ApiProperty,
-  ApiPropertyOptional,
-} from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EmployeeStatus } from '../../domain/enums/employee-status.enum';
 
 export class PhoneDto {
-  @ApiProperty({ example: 'mobile', description: 'Phone type (mobile, work, etc.)' })
+  @ApiProperty({
+    example: 'mobile',
+    description: 'Phone type (mobile, work, etc.)',
+  })
   @IsString()
   @IsNotEmpty()
   type: string;
@@ -28,11 +27,6 @@ export class PhoneDto {
 }
 
 export class CreateEmployeeDto {
-  @ApiProperty({ example: 'a1b2c3d4-...', description: 'Unique UUID for the employee' })
-  @IsString()
-  @IsNotEmpty()
-  id: string;
-
   @ApiProperty({ example: 'Alice', description: 'Employee first name' })
   @IsString()
   @IsNotEmpty()
@@ -45,7 +39,8 @@ export class CreateEmployeeDto {
 
   @ApiPropertyOptional({
     example: 'alice@company.com',
-    description: 'Corporate email address (required for invariant validation at domain level)',
+    description:
+      'Corporate email address (required for invariant validation at domain level)',
   })
   @IsOptional()
   @IsEmail()
@@ -70,17 +65,26 @@ export class CreateEmployeeDto {
   @IsEnum(EmployeeStatus)
   status?: EmployeeStatus;
 
-  @ApiPropertyOptional({ example: 'role-devops', description: 'IT Role ID reference' })
+  @ApiPropertyOptional({
+    example: '019fb457-8159-75c9-8705-6cc48aa6b6aa',
+    description: 'IT Role ID reference',
+  })
   @IsOptional()
   @IsString()
   itRoleId?: string | null;
 
-  @ApiPropertyOptional({ example: 'mgmt-1', description: 'Management unit ID reference' })
+  @ApiPropertyOptional({
+    example: '019fb457-8159-75c9-8994-5821e324f78d',
+    description: 'Management unit ID reference',
+  })
   @IsOptional()
   @IsString()
   managementId?: string | null;
 
-  @ApiPropertyOptional({ example: 'org-off', description: 'Physical office OrganizationUnit ID' })
+  @ApiPropertyOptional({
+    example: '019fb457-8159-75c9-8994-5821e324f78d',
+    description: 'Physical office OrganizationUnit ID',
+  })
   @IsOptional()
   @IsString()
   workingFromId?: string | null;
@@ -88,7 +92,7 @@ export class CreateEmployeeDto {
   @ApiPropertyOptional({
     type: [String],
     example: ['AWS', 'Linux', 'Kubernetes'],
-    description: 'List of certified IT skills',
+    description: 'List of IT skills',
   })
   @IsOptional()
   @IsArray()

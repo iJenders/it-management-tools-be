@@ -16,6 +16,8 @@ export class Asset extends AggregateRoot {
       return;
     }
     this.assignedToId = employeeId;
-    this.addDomainEvent(new AssetAssignedEvent(this.id, employeeId, new Date()));
+    this.addDomainEvent(
+      new AssetAssignedEvent(this.id, employeeId, new Date()),
+    );
   }
 }

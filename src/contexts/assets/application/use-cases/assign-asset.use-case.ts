@@ -5,7 +5,7 @@ export class AssignAssetUseCase {
   constructor(
     private readonly assetRepository: AssetRepository,
     private readonly eventBus: EventBus,
-  ) { }
+  ) {}
 
   async execute(assetId: string, employeeId: string): Promise<void> {
     const asset = await this.assetRepository.findById(assetId);

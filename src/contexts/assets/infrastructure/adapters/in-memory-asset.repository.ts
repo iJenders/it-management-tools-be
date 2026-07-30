@@ -16,12 +16,15 @@ export class InMemoryAssetRepository implements AssetRepository {
   }
 
   async save(asset: Asset): Promise<void> {
-    this.assets.set(asset.id, new Asset(asset.id, asset.name, asset.sku, asset.assignedToId));
+    this.assets.set(
+      asset.id,
+      new Asset(asset.id, asset.name, asset.sku, asset.assignedToId),
+    );
   }
 
   async findAll(): Promise<Asset[]> {
     return Array.from(this.assets.values()).map(
-      (asset) => new Asset(asset.id, asset.name, asset.sku, asset.assignedToId)
+      (asset) => new Asset(asset.id, asset.name, asset.sku, asset.assignedToId),
     );
   }
 }

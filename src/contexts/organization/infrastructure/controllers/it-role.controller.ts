@@ -1,5 +1,10 @@
 import { Controller, Post, Body, Get, Inject } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { CreateITRoleUseCase } from '../../application/use-cases/create-it-role.use-case';
 import type { ITRoleRepository } from '../../domain/ports/it-role-repository.interface';
 import { CreateITRoleDto } from '../dtos/create-it-role.dto';
@@ -23,7 +28,6 @@ export class ITRoleController {
   @ApiCreatedResponse({ description: 'IT role created successfully' })
   async create(@Body() dto: CreateITRoleDto): Promise<any> {
     const role = await this.createITRoleUseCase.execute(
-      dto.id,
       dto.name,
       dto.description,
     );

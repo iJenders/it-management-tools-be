@@ -1,5 +1,10 @@
 import { Controller, Post, Body, Get, Inject } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { CreateOrganizationUnitUseCase } from '../../application/use-cases/create-organization-unit.use-case';
 import type { OrganizationUnitRepository } from '../../domain/ports/organization-unit-repository.interface';
 import { CreateOrganizationUnitDto } from '../dtos/create-organization-unit.dto';
@@ -11,7 +16,7 @@ export class OrganizationUnitController {
     private readonly createOrgUnitUseCase: CreateOrganizationUnitUseCase,
     @Inject('OrganizationUnitRepository')
     private readonly orgUnitRepository: OrganizationUnitRepository,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({
@@ -24,7 +29,6 @@ export class OrganizationUnitController {
   @ApiCreatedResponse({ description: 'Organization unit created successfully' })
   async create(@Body() dto: CreateOrganizationUnitDto): Promise<any> {
     const unit = await this.createOrgUnitUseCase.execute(
-      dto.id,
       dto.type,
       dto.name,
       dto.country,

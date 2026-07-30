@@ -15,7 +15,6 @@ export class InMemoryManagementRepository implements ManagementRepository {
       m.id,
       m.name,
       m.managerId,
-      m.costCenter,
       m.organizationId,
       m.parentManagementId,
     );
@@ -28,7 +27,6 @@ export class InMemoryManagementRepository implements ManagementRepository {
         management.id,
         management.name,
         management.managerId,
-        management.costCenter,
         management.organizationId,
         management.parentManagementId,
       ),
@@ -42,7 +40,6 @@ export class InMemoryManagementRepository implements ManagementRepository {
           m.id,
           m.name,
           m.managerId,
-          m.costCenter,
           m.organizationId,
           m.parentManagementId,
         ),

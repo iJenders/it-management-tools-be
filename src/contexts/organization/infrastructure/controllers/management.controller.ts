@@ -1,5 +1,10 @@
 import { Controller, Post, Body, Get, Inject } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { CreateManagementUseCase } from '../../application/use-cases/create-management.use-case';
 import type { ManagementRepository } from '../../domain/ports/management-repository.interface';
 import { CreateManagementDto } from '../dtos/create-management.dto';
@@ -23,10 +28,8 @@ export class ManagementController {
   @ApiCreatedResponse({ description: 'Management unit created successfully' })
   async create(@Body() dto: CreateManagementDto): Promise<any> {
     const management = await this.createManagementUseCase.execute(
-      dto.id,
       dto.name,
-      dto.managerId,
-      dto.costCenter,
+      dto.managerId ?? null,
       dto.organizationId,
       dto.parentManagementId ?? null,
     );
@@ -34,7 +37,6 @@ export class ManagementController {
       id: management.id,
       name: management.name.value,
       managerId: management.managerId,
-      costCenter: management.costCenter.code,
       organizationId: management.organizationId,
       parentManagementId: management.parentManagementId,
     };
@@ -49,7 +51,6 @@ export class ManagementController {
       id: m.id,
       name: m.name.value,
       managerId: m.managerId,
-      costCenter: m.costCenter.code,
       organizationId: m.organizationId,
       parentManagementId: m.parentManagementId,
     }));

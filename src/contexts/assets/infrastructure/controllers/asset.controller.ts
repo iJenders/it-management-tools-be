@@ -33,7 +33,10 @@ export class AssetController {
     @Body('employeeId') employeeId: string,
   ): Promise<any> {
     await this.assignAssetUseCase.execute(assetId, employeeId);
-    return { success: true, message: `Asset ${assetId} assigned to employee ${employeeId}` };
+    return {
+      success: true,
+      message: `Asset ${assetId} assigned to employee ${employeeId}`,
+    };
   }
 
   @Get()

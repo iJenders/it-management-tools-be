@@ -3,9 +3,7 @@ import { OrganizationUnit } from '../../domain/models/organization-unit';
 import { OrganizationUnitRepository } from '../../domain/ports/organization-unit-repository.interface';
 
 @Injectable()
-export class InMemoryOrganizationUnitRepository
-  implements OrganizationUnitRepository
-{
+export class InMemoryOrganizationUnitRepository implements OrganizationUnitRepository {
   private readonly units = new Map<string, OrganizationUnit>();
 
   async findById(id: string): Promise<OrganizationUnit | null> {

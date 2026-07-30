@@ -1,5 +1,10 @@
 import { Controller, Post, Body, Get, Inject } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { CreateEmployeeUseCase } from '../../application/use-cases/create-employee.use-case';
 import type { EmployeeRepository } from '../../domain/ports/employee-repository.interface';
 import { EmployeeStatus } from '../../domain/enums/employee-status.enum';
@@ -24,7 +29,6 @@ export class EmployeeController {
   @ApiCreatedResponse({ description: 'Employee created successfully' })
   async create(@Body() dto: CreateEmployeeDto): Promise<any> {
     const employee = await this.createEmployeeUseCase.execute(
-      dto.id,
       dto.firstName,
       dto.lastName,
       dto.email,

@@ -8,7 +8,7 @@ export class TimeZone extends ValueObject<{ value: string }> {
     try {
       // Validate using standard ECMAScript Intl API
       Intl.DateTimeFormat(undefined, { timeZone: value.trim() });
-    } catch (e) {
+    } catch {
       throw new Error(
         `Timezone '${value}' is invalid or not supported by the runtime environment.`,
       );

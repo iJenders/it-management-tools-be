@@ -1,9 +1,11 @@
 # IT Management Tools — Backend API
 
 > A centralized platform for managing IT assets, personnel, and organizational structure in mid-to-large enterprises.
+>
 > #### Other languages:
-> * [English](./README_EN.md)
-> * [Español](./README_ES.md)
+>
+> - [English](./README_EN.md)
+> - [Español](./README_ES.md)
 
 ---
 
@@ -24,13 +26,13 @@ In most organizations, the IT department operates **in the dark**:
 
 Build the **backend for an enterprise IT management platform** that serves as the **Single Source of Truth** for:
 
-| Domain | Business question it answers |
-|---|---|
-| **Organization** | How is the company structured? Who is accountable for each area? |
-| **People** | Who are the IT staff, what are their roles, and where do they work from? |
-| **Assets** | What equipment, licenses, and tech resources exist, and who has them? |
-| **Access** | *(upcoming)* What permissions, credentials, and systems can each person use? |
-| **Support** | *(upcoming)* Who should handle a ticket based on area, location, and schedule? |
+| Domain           | Business question it answers                                                   |
+| ---------------- | ------------------------------------------------------------------------------ |
+| **Organization** | How is the company structured? Who is accountable for each area?               |
+| **People**       | Who are the IT staff, what are their roles, and where do they work from?       |
+| **Assets**       | What equipment, licenses, and tech resources exist, and who has them?          |
+| **Access**       | _(upcoming)_ What permissions, credentials, and systems can each person use?   |
+| **Support**      | _(upcoming)_ Who should handle a ticket based on area, location, and schedule? |
 
 ---
 
@@ -43,38 +45,47 @@ The system is built around three coordinated domains:
 Models the **complete company structure** from three angles:
 
 #### Organization Units (`OrganizationUnit`)
+
 Represent the **physical and legal boundaries** of the company:
-- `LegalEntity` — Parent company or holding (e.g. *IT Holdings Inc.*)
-- `Subsidiary` — Country or regional subsidiary (e.g. *IT Mexico LLC*)
-- `Office` — Physical office or building (e.g. *Madrid HQ*)
-- `Branch` — Operational branch (e.g. *Floor 3, North Tower*)
+
+- `LegalEntity` — Parent company or holding (e.g. _IT Holdings Inc._)
+- `Subsidiary` — Country or regional subsidiary (e.g. _IT Mexico LLC_)
+- `Office` — Physical office or building (e.g. _Madrid HQ_)
+- `Branch` — Operational branch (e.g. _Floor 3, North Tower_)
 
 > Every physical office carries a **validated timezone**. This drives server maintenance windows, HelpDesk support hours, and on-call coordination across geographies.
 
 #### Management Units (`Management`)
+
 Represent the **functional and hierarchical structure** of IT:
-- Each unit has an accountable manager (`managerId`) and a cost center (`costCenter`) to track spending on licenses, hardware, and cloud services.
+
+- Each unit has an accountable manager (`managerId`).
 - They support deep hierarchies (a Networks team can report to an Infrastructure department).
 - The system **enforces cycle-free hierarchies**: a unit cannot report to itself or to any of its own descendants.
 
 #### Employees (`Employee`)
+
 Represent **IT personnel** with attributes relevant to the platform:
+
 - They carry a configurable **IT role** (`ITRole`): DevOps Engineer, SysAdmin, HelpDesk L1, CIO, etc.
 - They are linked to both a management unit (functional reporting line) and a physical office (`workingFromId`), answering "where does this person actually sit?"
 - They hold a list of **certified skills** (e.g. AWS, Linux, SAP) for intelligent ticket routing.
 
 **Key business invariants enforced by the domain:**
+
 - An active employee **must have** a valid corporate email address.
 - An active employee **must belong** to a management unit, unless their role is `CEO` or `CIO`.
 
 #### IT Roles (`ITRole`)
+
 Available roles are configured by the organization itself, providing flexibility to match any internal structure without changing code.
 
 ---
 
-### 2. Context: Assets (`/assets`) *(built — pending integration)*
+### 2. Context: Assets (`/assets`) _(built — pending integration)_
 
 Will manage the inventory of technology assets:
+
 - Hardware (laptops, servers, peripherals)
 - Software licenses
 - Cloud resources (instances, IPs, domains)
@@ -128,14 +139,14 @@ src/
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Runtime | Node.js + TypeScript |
-| HTTP Framework | NestJS |
-| Input Validation | `class-validator` + `class-transformer` |
-| API Documentation | Swagger / OpenAPI 3.0 |
-| Event Bus | `@nestjs/event-emitter` (swappable for RabbitMQ / Kafka) |
-| Persistence | In-Memory (pluggable with TypeORM, Prisma, MongoDB, etc.) |
+| Layer             | Technology                                                |
+| ----------------- | --------------------------------------------------------- |
+| Runtime           | Node.js + TypeScript                                      |
+| HTTP Framework    | NestJS                                                    |
+| Input Validation  | `class-validator` + `class-transformer`                   |
+| API Documentation | Swagger / OpenAPI 3.0                                     |
+| Event Bus         | `@nestjs/event-emitter` (swappable for RabbitMQ / Kafka)  |
+| Persistence       | In-Memory (pluggable with TypeORM, Prisma, MongoDB, etc.) |
 
 ---
 

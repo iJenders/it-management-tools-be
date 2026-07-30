@@ -10,9 +10,9 @@ async function bootstrap() {
   // Global DTO validation (class-validator)
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,       // Strip unknown properties not declared in the DTO
+      whitelist: true, // Strip unknown properties not declared in the DTO
       forbidNonWhitelisted: true, // Throw if unknown properties are sent
-      transform: true,       // Auto-transform payloads to DTO class instances
+      transform: true, // Auto-transform payloads to DTO class instances
     }),
   );
 
@@ -24,7 +24,7 @@ async function bootstrap() {
     .setTitle('IT Management Tools API')
     .setDescription(
       'DDD Hexagonal Architecture – Organization Context. ' +
-      'Manages Employees, Management Units, Organization Units and IT Roles.',
+        'Manages Employees, Management Units, Organization Units and IT Roles.',
     )
     .setVersion('1.0')
     .build();
@@ -33,5 +33,4 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
-
+void bootstrap();

@@ -2,24 +2,31 @@ import { Management } from '../../domain/models/management';
 import { ManagementRepository } from '../../domain/ports/management-repository.interface';
 import { HierarchyValidatorService } from '../../domain/services/hierarchy-validator.service';
 import { ManagementName } from '../../domain/value-objects/management-name.vo';
-import { CostCenter } from '../../domain/value-objects/cost-center.vo';
+import { IdGeneratorPort } from 'src/shared/domain/ports/id-generator.port';
 
 export class CreateManagementUseCase {
   constructor(
     private readonly managementRepository: ManagementRepository,
     private readonly hierarchyValidator: HierarchyValidatorService,
+    private readonly idGenerator: IdGeneratorPort,
   ) {}
 
   async execute(
-    id: string,
     nameVal: string,
-    managerId: string,
-    costCenterVal: string,
+    managerId: string | null = null,
     organizationId: string,
     parentManagementId: string | null = null,
   ): Promise<Management> {
+    const id = this.idGenerator.generate();
     const name = new ManagementName(nameVal);
-    const costCenter = new CostCenter(costCenterVal);
+
+    if (parentManagementId) {
+      const parent =
+        await this.managementRepository.findById(parentManagementId);
+      if (!parent) {
+        throw new Error('The given parent management does not exist.');
+      }
+    }
 
     const parentAncestors = parentManagementId
       ? await this.hierarchyValidator.getManagementAncestors(parentManagementId)
@@ -29,7 +36,6 @@ export class CreateManagementUseCase {
       id,
       name,
       managerId,
-      costCenter,
       organizationId,
       null,
     );
