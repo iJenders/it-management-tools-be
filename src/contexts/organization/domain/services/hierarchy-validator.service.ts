@@ -1,47 +1,27 @@
-import { ManagementRepository } from '../ports/management-repository.interface';
-import { OrganizationUnitRepository } from '../ports/organization-unit-repository.interface';
-
 export class HierarchyValidatorService {
-  constructor(
-    private readonly managementRepository: ManagementRepository,
-    private readonly orgUnitRepository: OrganizationUnitRepository,
-  ) {}
-
-  public async getManagementAncestors(
+  /**
+   * Validates that adding targetId under parentAncestors does not cause a cyclic loop.
+   * Runs 100% in memory without I/O dependencies.
+   */
+  public static validateNoCycle(
+    targetId: string,
     parentManagementId: string | null,
-  ): Promise<string[]> {
-    const ancestors: string[] = [];
-    let currentId = parentManagementId;
-
-    while (currentId) {
-      ancestors.push(currentId);
-      const parent = await this.managementRepository.findById(currentId);
-      currentId = parent ? parent.parentManagementId : null;
-      if (ancestors.length > 100) {
-        throw new Error(
-          'Hierarchy tree is too deep, possible corruption or cyclic loop.',
-        );
-      }
+    parentAncestors: string[],
+  ): void {
+    if (parentManagementId === targetId) {
+      throw new Error('A unit cannot report to itself');
     }
-    return ancestors;
-  }
 
-  public async getOrganizationUnitAncestors(
-    parentId: string | null,
-  ): Promise<string[]> {
-    const ancestors: string[] = [];
-    let currentId = parentId;
-
-    while (currentId) {
-      ancestors.push(currentId);
-      const parent = await this.orgUnitRepository.findById(currentId);
-      currentId = parent ? parent.parentOrganizationId : null;
-      if (ancestors.length > 100) {
-        throw new Error(
-          'Hierarchy tree is too deep, possible corruption or cyclic loop.',
-        );
-      }
+    if (parentManagementId && parentAncestors.includes(targetId)) {
+      throw new Error(
+        'Circular dependency detected: The proposed parent reports to a descendant of this unit',
+      );
     }
-    return ancestors;
+
+    if (parentAncestors.length > 100) {
+      throw new Error(
+        'Hierarchy tree is too deep, possible corruption or cyclic loop.',
+      );
+    }
   }
 }

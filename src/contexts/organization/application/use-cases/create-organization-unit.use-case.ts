@@ -10,7 +10,6 @@ import { IdGeneratorPort } from '../../../../shared/domain/ports/id-generator.po
 export class CreateOrganizationUnitUseCase {
   constructor(
     private readonly orgUnitRepository: OrganizationUnitRepository,
-    private readonly hierarchyValidator: HierarchyValidatorService,
     private readonly idGenerator: IdGeneratorPort,
   ) {}
 
@@ -37,10 +36,14 @@ export class CreateOrganizationUnitUseCase {
     }
 
     const parentAncestors = parentOrganizationId
-      ? await this.hierarchyValidator.getOrganizationUnitAncestors(
-          parentOrganizationId,
-        )
+      ? await this.orgUnitRepository.findAncestors(parentOrganizationId)
       : [];
+
+    HierarchyValidatorService.validateNoCycle(
+      id,
+      parentOrganizationId,
+      parentAncestors,
+    );
 
     const unit = new OrganizationUnit(id, type, name, location, timeZone, null);
 
@@ -50,3 +53,4 @@ export class CreateOrganizationUnitUseCase {
     return unit;
   }
 }
+

@@ -7,7 +7,6 @@ import { IdGeneratorPort } from '../../../../shared/domain/ports/id-generator.po
 export class CreateManagementUseCase {
   constructor(
     private readonly managementRepository: ManagementRepository,
-    private readonly hierarchyValidator: HierarchyValidatorService,
     private readonly idGenerator: IdGeneratorPort,
   ) {}
 
@@ -29,8 +28,14 @@ export class CreateManagementUseCase {
     }
 
     const parentAncestors = parentManagementId
-      ? await this.hierarchyValidator.getManagementAncestors(parentManagementId)
+      ? await this.managementRepository.findAncestors(parentManagementId)
       : [];
+
+    HierarchyValidatorService.validateNoCycle(
+      id,
+      parentManagementId,
+      parentAncestors,
+    );
 
     const management = new Management(
       id,
@@ -47,3 +52,4 @@ export class CreateManagementUseCase {
     return management;
   }
 }
+

@@ -20,6 +20,24 @@ export class InMemoryManagementRepository implements ManagementRepository {
     );
   }
 
+  async findAncestors(id: string): Promise<string[]> {
+    const ancestors: string[] = [];
+    let currentId: string | null = id;
+
+    while (currentId) {
+      ancestors.push(currentId);
+      const parent = await this.findById(currentId);
+      currentId = parent ? parent.parentManagementId : null;
+      if (ancestors.length > 100) {
+        throw new Error(
+          'Hierarchy tree is too deep, possible corruption or cyclic loop.',
+        );
+      }
+    }
+    return ancestors;
+  }
+
+
   async save(management: Management): Promise<void> {
     this.managements.set(
       management.id,

@@ -10,9 +10,6 @@ import { InMemoryITRoleRepository } from './infrastructure/adapters/in-memory-it
 // Id Generators adapters
 import { UuidGeneratorAdapter } from '../../shared/infrastructure/adapters/uuid-generator.adapter';
 
-// Services
-import { HierarchyValidatorService } from './domain/services/hierarchy-validator.service';
-
 // Use Cases
 import { CreateEmployeeUseCase } from './application/use-cases/create-employee.use-case';
 import { CreateManagementUseCase } from './application/use-cases/create-management.use-case';
@@ -58,18 +55,6 @@ import { ITRoleController } from './infrastructure/controllers/it-role.controlle
       useClass: UuidGeneratorAdapter,
     },
 
-    // Domain Services
-    {
-      provide: HierarchyValidatorService,
-      useFactory: (
-        managementRepo: InMemoryManagementRepository,
-        orgUnitRepo: InMemoryOrganizationUnitRepository,
-      ) => {
-        return new HierarchyValidatorService(managementRepo, orgUnitRepo);
-      },
-      inject: ['ManagementRepository', 'OrganizationUnitRepository'],
-    },
-
     // Use cases (Pure DI using factories)
     {
       provide: CreateEmployeeUseCase,
@@ -100,40 +85,23 @@ import { ITRoleController } from './infrastructure/controllers/it-role.controlle
       provide: CreateManagementUseCase,
       useFactory: (
         managementRepo: InMemoryManagementRepository,
-        hierarchyVal: HierarchyValidatorService,
         idGenerator: UuidGeneratorAdapter,
       ) => {
-        return new CreateManagementUseCase(
-          managementRepo,
-          hierarchyVal,
-          idGenerator,
-        );
+        return new CreateManagementUseCase(managementRepo, idGenerator);
       },
-      inject: [
-        'ManagementRepository',
-        HierarchyValidatorService,
-        'IdGeneratorPort',
-      ],
+      inject: ['ManagementRepository', 'IdGeneratorPort'],
     },
     {
       provide: CreateOrganizationUnitUseCase,
       useFactory: (
         orgUnitRepo: InMemoryOrganizationUnitRepository,
-        hierarchyVal: HierarchyValidatorService,
         idGenerator: UuidGeneratorAdapter,
       ) => {
-        return new CreateOrganizationUnitUseCase(
-          orgUnitRepo,
-          hierarchyVal,
-          idGenerator,
-        );
+        return new CreateOrganizationUnitUseCase(orgUnitRepo, idGenerator);
       },
-      inject: [
-        'OrganizationUnitRepository',
-        HierarchyValidatorService,
-        'IdGeneratorPort',
-      ],
+      inject: ['OrganizationUnitRepository', 'IdGeneratorPort'],
     },
+
     {
       provide: CreateITRoleUseCase,
       useFactory: (
