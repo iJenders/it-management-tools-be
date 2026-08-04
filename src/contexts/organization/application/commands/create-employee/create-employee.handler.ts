@@ -21,7 +21,8 @@ export class CreateEmployeeHandler {
   async execute(command: CreateEmployeeCommand): Promise<Employee> {
     const id = this.idGenerator.generate();
     const email = command.email ? new Email(command.email) : undefined;
-    const phones = command.phones?.map((p) => new Phone(p.type, p.number)) || [];
+    const phones =
+      command.phones?.map((p) => new Phone(p.type, p.number)) || [];
     const personalInfo = new PersonalInformation({
       firstName: command.firstName,
       lastName: command.lastName,
@@ -48,8 +49,9 @@ export class CreateEmployeeHandler {
     }
 
     if (command.workingFromId) {
-      const workingFrom =
-        await this.organizationUnitRepository.findById(command.workingFromId);
+      const workingFrom = await this.organizationUnitRepository.findById(
+        command.workingFromId,
+      );
       if (!workingFrom) {
         throw new Error(
           `OrganizationUnit with ID ${command.workingFromId} not found`,

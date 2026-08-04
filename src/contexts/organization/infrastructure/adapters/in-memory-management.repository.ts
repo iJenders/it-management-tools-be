@@ -37,7 +37,6 @@ export class InMemoryManagementRepository implements ManagementRepository {
     return ancestors;
   }
 
-
   async save(management: Management): Promise<void> {
     this.managements.set(
       management.id,

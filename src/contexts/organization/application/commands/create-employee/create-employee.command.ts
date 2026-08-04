@@ -1,6 +1,5 @@
 import { EmployeeStatus } from '../../../domain/enums/employee-status.enum';
 
-
 export class CreateEmployeeCommand {
   constructor(
     public readonly firstName: string,

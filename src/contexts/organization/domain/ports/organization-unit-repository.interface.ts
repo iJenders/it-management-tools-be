@@ -6,4 +6,3 @@ export interface OrganizationUnitRepository {
   save(unit: OrganizationUnit): Promise<void>;
   findAll(): Promise<OrganizationUnit[]>;
 }
-

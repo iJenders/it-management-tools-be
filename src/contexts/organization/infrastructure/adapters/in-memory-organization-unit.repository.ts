@@ -38,7 +38,6 @@ export class InMemoryOrganizationUnitRepository implements OrganizationUnitRepos
     return ancestors;
   }
 
-
   async save(unit: OrganizationUnit): Promise<void> {
     this.units.set(
       unit.id,

@@ -25,7 +25,9 @@ export class CreateManagementHandler {
     }
 
     const parentAncestors = command.parentManagementId
-      ? await this.managementRepository.findAncestors(command.parentManagementId)
+      ? await this.managementRepository.findAncestors(
+          command.parentManagementId,
+        )
       : [];
 
     HierarchyValidatorService.validateNoCycle(

@@ -6,4 +6,3 @@ export interface ManagementRepository {
   save(management: Management): Promise<void>;
   findAll(): Promise<Management[]>;
 }
-
