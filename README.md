@@ -4,8 +4,8 @@
 >
 > #### Other languages:
 >
-> - [English](./README_EN.md)
-> - [Español](./README_ES.md)
+> - [English](./docs/README/README_EN.md)
+> - [Español](./docs/README/README_ES.md)
 
 ---
 
