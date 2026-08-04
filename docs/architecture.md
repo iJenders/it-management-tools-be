@@ -28,20 +28,24 @@ src/
 │       │   ├── value-objects/            # Immutable Value Objects
 │       │   ├── models/                   # Entities & Aggregate Roots
 │       │   ├── ports/                    # Outbound Port Interfaces (Repositories, Services)
+│       │   ├── events/                   # Domain Events
+│       │   ├── exceptions/               # Domain Exceptions
 │       │   └── services/                 # Pure Domain Services
 │       ├── application/                  # Pure Application Layer (CQRS)
 │       │   ├── commands/                 # Command Use Cases
 │       │   │   └── <command-name>/
 │       │   │       ├── <command-name>.command.ts # Command DTO
+│       │   │       ├── <command-name>.result.ts # Result DTO
 │       │   │       └── <command-name>.handler.ts # Command Handler
 │       │   └── queries/                  # Query Use Cases
 │       │       └── <query-name>/
 │       │           ├── <query-name>.query.ts   # Query DTO
+│       │           ├── <query-name>.readmodel.ts # Read Model DTO
 │       │           └── <query-name>.handler.ts # Query Handler
 │       └── infrastructure/               # Infrastructure / Adapters Layer
 │           ├── adapters/                 # Concrete repository & service implementations
-│           ├── dtos/                     # HTTP Request DTOs
-│           └── controllers/              # REST Controllers
+│           ├── dtos/                     # Infrastructure DTOs
+│           └── controllers/              # Infrastructure Controllers
 └── shared/                               # Shared Kernel & Common Adapters
     ├── domain/                           # Shared Domain Abstractions & Ports
     └── infrastructure/                   # Shared Infrastructure Adapters & Modules
