@@ -1,21 +1,22 @@
-import { Controller, Post, Body, Get, Inject } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiCreatedResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { CreateOrganizationUnitUseCase } from '../../application/use-cases/create-organization-unit.use-case';
-import type { OrganizationUnitRepository } from '../../domain/ports/organization-unit-repository.interface';
+import { CreateOrganizationUnitHandler } from '../../application/commands/create-organization-unit/create-organization-unit.handler';
+import { CreateOrganizationUnitCommand } from '../../application/commands/create-organization-unit/create-organization-unit.command';
+import { ListOrganizationUnitsHandler } from '../../application/queries/list-organization-units/list-organization-units.handler';
+import { ListOrganizationUnitsQuery } from '../../application/queries/list-organization-units/list-organization-units.query';
 import { CreateOrganizationUnitDto } from '../dtos/create-organization-unit.dto';
 
 @ApiTags('Organization Units')
 @Controller('organization-units')
 export class OrganizationUnitController {
   constructor(
-    private readonly createOrgUnitUseCase: CreateOrganizationUnitUseCase,
-    @Inject('OrganizationUnitRepository')
-    private readonly orgUnitRepository: OrganizationUnitRepository,
+    private readonly createOrgUnitHandler: CreateOrganizationUnitHandler,
+    private readonly listOrgUnitsHandler: ListOrganizationUnitsHandler,
   ) {}
 
   @Post()
@@ -28,7 +29,7 @@ export class OrganizationUnitController {
   })
   @ApiCreatedResponse({ description: 'Organization unit created successfully' })
   async create(@Body() dto: CreateOrganizationUnitDto): Promise<any> {
-    const unit = await this.createOrgUnitUseCase.execute(
+    const command = new CreateOrganizationUnitCommand(
       dto.type,
       dto.name,
       dto.country,
@@ -37,6 +38,8 @@ export class OrganizationUnitController {
       dto.timeZone,
       dto.parentOrganizationId ?? null,
     );
+    const unit = await this.createOrgUnitHandler.execute(command);
+
     return {
       id: unit.id,
       type: unit.type,
@@ -55,7 +58,8 @@ export class OrganizationUnitController {
   @ApiOperation({ summary: 'List all organization units' })
   @ApiOkResponse({ description: 'List of organization units' })
   async findAll(): Promise<any[]> {
-    const units = await this.orgUnitRepository.findAll();
+    const query = new ListOrganizationUnitsQuery();
+    const units = await this.listOrgUnitsHandler.execute(query);
     return units.map((u) => ({
       id: u.id,
       type: u.type,

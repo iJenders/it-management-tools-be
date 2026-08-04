@@ -10,11 +10,17 @@ import { InMemoryITRoleRepository } from './infrastructure/adapters/in-memory-it
 // Id Generators adapters
 import { UuidGeneratorAdapter } from '../../shared/infrastructure/adapters/uuid-generator.adapter';
 
-// Use Cases
-import { CreateEmployeeUseCase } from './application/use-cases/create-employee.use-case';
-import { CreateManagementUseCase } from './application/use-cases/create-management.use-case';
-import { CreateOrganizationUnitUseCase } from './application/use-cases/create-organization-unit.use-case';
-import { CreateITRoleUseCase } from './application/use-cases/create-it-role.use-case';
+// Command Handlers
+import { CreateEmployeeHandler } from './application/commands/create-employee/create-employee.handler';
+import { CreateManagementHandler } from './application/commands/create-management/create-management.handler';
+import { CreateOrganizationUnitHandler } from './application/commands/create-organization-unit/create-organization-unit.handler';
+import { CreateITRoleHandler } from './application/commands/create-it-role/create-it-role.handler';
+
+// Query Handlers
+import { ListEmployeesHandler } from './application/queries/list-employees/list-employees.handler';
+import { ListManagementsHandler } from './application/queries/list-managements/list-managements.handler';
+import { ListOrganizationUnitsHandler } from './application/queries/list-organization-units/list-organization-units.handler';
+import { ListITRolesHandler } from './application/queries/list-it-roles/list-it-roles.handler';
 
 // Controllers
 import { EmployeeController } from './infrastructure/controllers/employee.controller';
@@ -55,9 +61,9 @@ import { ITRoleController } from './infrastructure/controllers/it-role.controlle
       useClass: UuidGeneratorAdapter,
     },
 
-    // Use cases (Pure DI using factories)
+    // Command Handlers
     {
-      provide: CreateEmployeeUseCase,
+      provide: CreateEmployeeHandler,
       useFactory: (
         employeeRepo: InMemoryEmployeeRepository,
         itRoleRepo: InMemoryITRoleRepository,
@@ -65,7 +71,7 @@ import { ITRoleController } from './infrastructure/controllers/it-role.controlle
         organizationUnitRepository: InMemoryOrganizationUnitRepository,
         idGenerator: UuidGeneratorAdapter,
       ) => {
-        return new CreateEmployeeUseCase(
+        return new CreateEmployeeHandler(
           employeeRepo,
           itRoleRepo,
           managementRepo,
@@ -82,35 +88,64 @@ import { ITRoleController } from './infrastructure/controllers/it-role.controlle
       ],
     },
     {
-      provide: CreateManagementUseCase,
+      provide: CreateManagementHandler,
       useFactory: (
         managementRepo: InMemoryManagementRepository,
         idGenerator: UuidGeneratorAdapter,
       ) => {
-        return new CreateManagementUseCase(managementRepo, idGenerator);
+        return new CreateManagementHandler(managementRepo, idGenerator);
       },
       inject: ['ManagementRepository', 'IdGeneratorPort'],
     },
     {
-      provide: CreateOrganizationUnitUseCase,
+      provide: CreateOrganizationUnitHandler,
       useFactory: (
         orgUnitRepo: InMemoryOrganizationUnitRepository,
         idGenerator: UuidGeneratorAdapter,
       ) => {
-        return new CreateOrganizationUnitUseCase(orgUnitRepo, idGenerator);
+        return new CreateOrganizationUnitHandler(orgUnitRepo, idGenerator);
       },
       inject: ['OrganizationUnitRepository', 'IdGeneratorPort'],
     },
-
     {
-      provide: CreateITRoleUseCase,
+      provide: CreateITRoleHandler,
       useFactory: (
         itRoleRepo: InMemoryITRoleRepository,
         idGenerator: UuidGeneratorAdapter,
       ) => {
-        return new CreateITRoleUseCase(itRoleRepo, idGenerator);
+        return new CreateITRoleHandler(itRoleRepo, idGenerator);
       },
       inject: ['ITRoleRepository', 'IdGeneratorPort'],
+    },
+
+    // Query Handlers
+    {
+      provide: ListEmployeesHandler,
+      useFactory: (employeeRepo: InMemoryEmployeeRepository) => {
+        return new ListEmployeesHandler(employeeRepo);
+      },
+      inject: ['EmployeeRepository'],
+    },
+    {
+      provide: ListManagementsHandler,
+      useFactory: (managementRepo: InMemoryManagementRepository) => {
+        return new ListManagementsHandler(managementRepo);
+      },
+      inject: ['ManagementRepository'],
+    },
+    {
+      provide: ListOrganizationUnitsHandler,
+      useFactory: (orgUnitRepo: InMemoryOrganizationUnitRepository) => {
+        return new ListOrganizationUnitsHandler(orgUnitRepo);
+      },
+      inject: ['OrganizationUnitRepository'],
+    },
+    {
+      provide: ListITRolesHandler,
+      useFactory: (itRoleRepo: InMemoryITRoleRepository) => {
+        return new ListITRolesHandler(itRoleRepo);
+      },
+      inject: ['ITRoleRepository'],
     },
   ],
   exports: [
@@ -118,10 +153,14 @@ import { ITRoleController } from './infrastructure/controllers/it-role.controlle
     'ManagementRepository',
     'OrganizationUnitRepository',
     'ITRoleRepository',
-    CreateEmployeeUseCase,
-    CreateManagementUseCase,
-    CreateOrganizationUnitUseCase,
-    CreateITRoleUseCase,
+    CreateEmployeeHandler,
+    CreateManagementHandler,
+    CreateOrganizationUnitHandler,
+    CreateITRoleHandler,
+    ListEmployeesHandler,
+    ListManagementsHandler,
+    ListOrganizationUnitsHandler,
+    ListITRolesHandler,
   ],
 })
 export class OrganizationModule {}

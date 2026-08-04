@@ -1,12 +1,14 @@
-import { Controller, Post, Body, Get, Inject } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiCreatedResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { CreateEmployeeUseCase } from '../../application/use-cases/create-employee.use-case';
-import type { EmployeeRepository } from '../../domain/ports/employee-repository.interface';
+import { CreateEmployeeHandler } from '../../application/commands/create-employee/create-employee.handler';
+import { CreateEmployeeCommand } from '../../application/commands/create-employee/create-employee.command';
+import { ListEmployeesHandler } from '../../application/queries/list-employees/list-employees.handler';
+import { ListEmployeesQuery } from '../../application/queries/list-employees/list-employees.query';
 import { EmployeeStatus } from '../../domain/enums/employee-status.enum';
 import { CreateEmployeeDto } from '../dtos/create-employee.dto';
 
@@ -14,9 +16,8 @@ import { CreateEmployeeDto } from '../dtos/create-employee.dto';
 @Controller('employees')
 export class EmployeeController {
   constructor(
-    private readonly createEmployeeUseCase: CreateEmployeeUseCase,
-    @Inject('EmployeeRepository')
-    private readonly employeeRepository: EmployeeRepository,
+    private readonly createEmployeeHandler: CreateEmployeeHandler,
+    private readonly listEmployeesHandler: ListEmployeesHandler,
   ) {}
 
   @Post()
@@ -28,7 +29,7 @@ export class EmployeeController {
   })
   @ApiCreatedResponse({ description: 'Employee created successfully' })
   async create(@Body() dto: CreateEmployeeDto): Promise<any> {
-    const employee = await this.createEmployeeUseCase.execute(
+    const command = new CreateEmployeeCommand(
       dto.firstName,
       dto.lastName,
       dto.email,
@@ -39,6 +40,8 @@ export class EmployeeController {
       dto.workingFromId ?? null,
       dto.skills ?? [],
     );
+    const employee = await this.createEmployeeHandler.execute(command);
+
     return {
       id: employee.id,
       firstName: employee.personalInfo.firstName,
@@ -56,7 +59,8 @@ export class EmployeeController {
   @ApiOperation({ summary: 'List all employees' })
   @ApiOkResponse({ description: 'List of employees' })
   async findAll(): Promise<any[]> {
-    const employees = await this.employeeRepository.findAll();
+    const query = new ListEmployeesQuery();
+    const employees = await this.listEmployeesHandler.execute(query);
     return employees.map((employee) => ({
       id: employee.id,
       firstName: employee.personalInfo.firstName,
